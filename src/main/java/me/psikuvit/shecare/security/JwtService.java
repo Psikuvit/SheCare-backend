@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,7 +16,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtService {
     
-    private final String jwtSecret;
     private final long accessTokenExpiry;
     private final long refreshTokenExpiry;
     private final long clockSkew;
@@ -30,11 +28,19 @@ public class JwtService {
             @Value("${jwt.refresh-token-expiry}") long refreshTokenExpiry,
             @Value("${jwt.clock-skew:60}") long clockSkew
     ) {
-        this.jwtSecret = jwtSecret;
         this.accessTokenExpiry = accessTokenExpiry;
         this.refreshTokenExpiry = refreshTokenExpiry;
         this.clockSkew = clockSkew;
-        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        // Ensure the secret is at least 64 bytes (512 bits) for HS512
+        byte[] decodedKey = Base64.getDecoder().decode(jwtSecret);
+        if (decodedKey.length < 64) {
+            throw new IllegalArgumentException(
+                    "JWT secret must be at least 64 bytes (512 bits) when Base64 decoded. " +
+                    "Current length: " + decodedKey.length + " bytes. " +
+                    "Generate a new one using: Keys.secretKeyFor(SignatureAlgorithm.HS512)"
+            );
+        }
+        this.key = Keys.hmacShaKeyFor(decodedKey);
     }
     
     /**
@@ -67,7 +73,7 @@ public class JwtService {
                 .claims(claims)
                 .issuedAt(now)
                 .expiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS512)
+                .signWith(key)
                 .compact();
     }
     
@@ -90,7 +96,13 @@ public class JwtService {
      */
     @SuppressWarnings("unchecked")
     public Set<String> extractRoles(String token) {
-        return extractClaim(token, claims -> (Set<String>) claims.get("roles", Set.class));
+        Object rolesObj = extractClaim(token, claims -> claims.get("roles"));
+        if (rolesObj instanceof Set) {
+            return (Set<String>) rolesObj;
+        } else if (rolesObj instanceof Collection) {
+            return new HashSet<>((Collection<String>) rolesObj);
+        }
+        return new HashSet<>();
     }
     
     /**
@@ -113,8 +125,8 @@ public class JwtService {
         } catch (MalformedJwtException e) {
             log.warn("Malformed JWT: {}", e.getMessage());
             return false;
-        } catch (SignatureException e) {
-            log.warn("Invalid JWT signature: {}", e.getMessage());
+        } catch (JwtException e) {
+            log.warn("Invalid JWT: {}", e.getMessage());
             return false;
         } catch (IllegalArgumentException e) {
             log.warn("JWT claims string is empty: {}", e.getMessage());
