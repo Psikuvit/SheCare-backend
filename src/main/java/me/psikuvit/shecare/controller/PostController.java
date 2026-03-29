@@ -82,5 +82,38 @@ public class PostController {
         postService.deletePost(userId, id);
         return ResponseEntity.noContent().build();
     }
+    
+    /**
+     * Increment likes for a post
+     * POST /api/v1/posts/{id}/like
+     */
+    @PostMapping("/{id}/like")
+    public ResponseEntity<PostResponse> incrementLikes(@PathVariable String id) {
+        log.info("Increment likes endpoint called for post: {}", id);
+        PostResponse response = postService.incrementLikes(id);
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * Increment comments for a post
+     * POST /api/v1/posts/{id}/comment
+     */
+    @PostMapping("/{id}/comment")
+    public ResponseEntity<PostResponse> incrementComments(@PathVariable String id) {
+        log.info("Increment comments endpoint called for post: {}", id);
+        PostResponse response = postService.incrementComments(id);
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * Increment shares for a post
+     * POST /api/v1/posts/{id}/share
+     */
+    @PostMapping("/{id}/share")
+    public ResponseEntity<PostResponse> incrementShares(@PathVariable String id) {
+        log.info("Increment shares endpoint called for post: {}", id);
+        PostResponse response = postService.incrementShares(id);
+        return ResponseEntity.ok(response);
+    }
 }
 

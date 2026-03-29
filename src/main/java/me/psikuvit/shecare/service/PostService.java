@@ -97,6 +97,36 @@ public class PostService {
         postRepository.delete(post);
     }
     
+    public PostResponse incrementLikes(String postId) {
+        log.info("Incrementing likes for post: {}", postId);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+        
+        post.setLikes(post.getLikes() + 1);
+        post = postRepository.save(post);
+        return toPostResponse(post);
+    }
+    
+    public PostResponse incrementComments(String postId) {
+        log.info("Incrementing comments for post: {}", postId);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+        
+        post.setComments(post.getComments() + 1);
+        post = postRepository.save(post);
+        return toPostResponse(post);
+    }
+    
+    public PostResponse incrementShares(String postId) {
+        log.info("Incrementing shares for post: {}", postId);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+        
+        post.setShares(post.getShares() + 1);
+        post = postRepository.save(post);
+        return toPostResponse(post);
+    }
+    
     private PostResponse toPostResponse(Post post) {
         return PostResponse.builder()
                 .postId(post.getId())
