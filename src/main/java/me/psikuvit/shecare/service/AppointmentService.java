@@ -9,6 +9,7 @@ import me.psikuvit.shecare.model.Appointment;
 import me.psikuvit.shecare.repository.AppointmentRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,15 +20,24 @@ import java.util.stream.Collectors;
 public class AppointmentService {
     
     private final AppointmentRepository appointmentRepository;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     
     public AppointmentResponse createAppointment(String userId, AppointmentRequest request) {
         log.info("Creating appointment for user: {} with doctor: {}", userId, request.getDoctorId());
         
+        // Parse date and time to create appointmentTime
+        String dateTimeStr = request.getDate() + "T" + request.getTime();
+        LocalDateTime appointmentTime = LocalDateTime.parse(dateTimeStr, DATETIME_FORMATTER);
+        
         Appointment appointment = Appointment.builder()
                 .userId(userId)
                 .doctorId(request.getDoctorId())
-                .appointmentTime(request.getAppointmentTime())
+                .doctorName(request.getDoctorName())
+                .specialty(request.getSpecialty())
+                .appointmentTime(appointmentTime)
+                .appointmentType(request.getAppointmentType() != null ? request.getAppointmentType() : "in-person")
                 .reason(request.getReason())
                 .notes(request.getNotes())
                 .status("SCHEDULED")
@@ -69,7 +79,15 @@ public class AppointmentService {
         }
         
         appointment.setDoctorId(request.getDoctorId());
-        appointment.setAppointmentTime(request.getAppointmentTime());
+        appointment.setDoctorName(request.getDoctorName());
+        appointment.setSpecialty(request.getSpecialty());
+        
+        // Parse date and time
+        String dateTimeStr = request.getDate() + "T" + request.getTime();
+        LocalDateTime appointmentTime = LocalDateTime.parse(dateTimeStr, DATETIME_FORMATTER);
+        appointment.setAppointmentTime(appointmentTime);
+        
+        appointment.setAppointmentType(request.getAppointmentType() != null ? request.getAppointmentType() : "in-person");
         appointment.setReason(request.getReason());
         appointment.setNotes(request.getNotes());
         
@@ -93,14 +111,14 @@ public class AppointmentService {
     private AppointmentResponse toAppointmentResponse(Appointment appointment) {
         return AppointmentResponse.builder()
                 .id(appointment.getId())
-                .userId(appointment.getUserId())
-                .doctorId(appointment.getDoctorId())
-                .appointmentTime(appointment.getAppointmentTime().format(FORMATTER))
+                .doctorName(appointment.getDoctorName())
+                .specialty(appointment.getSpecialty())
+                .date(appointment.getAppointmentTime().format(DATE_FORMATTER))
+                .time(appointment.getAppointmentTime().format(TIME_FORMATTER))
+                .appointmentType(appointment.getAppointmentType())
                 .reason(appointment.getReason())
                 .notes(appointment.getNotes())
                 .status(appointment.getStatus())
-                .createdAt(appointment.getCreatedAt().format(FORMATTER))
-                .updatedAt(appointment.getUpdatedAt().format(FORMATTER))
                 .build();
     }
 }
