@@ -3,7 +3,6 @@ package me.psikuvit.shecare.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,15 +23,12 @@ public class StatsController {
     @GetMapping
     public ResponseEntity<?> getStats() {
         log.info("Get stats endpoint called");
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        
+
         Map<String, Object> stats = new HashMap<>();
-        stats.put("userId", userId);
         stats.put("totalSymptoms", 0);
         stats.put("totalAppointments", 0);
         stats.put("wellnessScore", 0.0);
-        stats.put("message", "Stats endpoint - implement your logic here");
-        
+
         return ResponseEntity.ok(stats);
     }
 }
