@@ -1,0 +1,14 @@
+package me.psikuvit.shecare.repository;
+
+import me.psikuvit.shecare.model.Resource;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface ResourceRepository extends JpaRepository<Resource, String> {
+    List<Resource> findByCategory(String category);
+    List<Resource> findByFeaturedTrue();
+}
+
