@@ -1,15 +1,11 @@
 package me.psikuvit.shecare.dto;
 
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -20,9 +16,21 @@ public class AppointmentRequest {
     @NotBlank(message = "Doctor ID is required")
     private String doctorId;
     
-    @NotNull(message = "Appointment time is required")
-    @Future(message = "Appointment time must be in the future")
-    private LocalDateTime appointmentTime;
+    @NotBlank(message = "Doctor name is required")
+    private String doctorName;
+    
+    @NotBlank(message = "Specialty is required")
+    private String specialty;
+    
+    @NotBlank(message = "Date is required")
+    private String date;
+    
+    @NotBlank(message = "Time is required")
+    private String time;
+    
+    @Pattern(regexp = "in-person|teleconsultation", message = "Type must be either 'in-person' or 'teleconsultation'")
+    @JsonProperty("type")
+    private String appointmentType;
     
     @Size(max = 200, message = "Reason must not exceed 200 characters")
     private String reason;

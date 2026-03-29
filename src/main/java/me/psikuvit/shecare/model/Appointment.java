@@ -26,7 +26,17 @@ public class Appointment {
     private String doctorId;
     
     @Column(nullable = false)
+    private String doctorName;
+    
+    @Column(nullable = false)
+    private String specialty;
+    
+    @Column(nullable = false)
     private LocalDateTime appointmentTime;
+    
+    @Column(nullable = false)
+    @Builder.Default
+    private String appointmentType = "in-person"; // in-person, teleconsultation
     
     private String reason;
     
