@@ -9,6 +9,7 @@ import me.psikuvit.shecare.model.Appointment;
 import me.psikuvit.shecare.repository.AppointmentRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -25,22 +26,20 @@ public class AppointmentService {
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     
     public AppointmentResponse createAppointment(String userId, AppointmentRequest request) {
-        log.info("Creating appointment for user: {} with doctor: {}", userId, request.getDoctorId());
+        log.info("Creating appointment for user: {} with doctor: {}", userId, request.getDoctor());
         
         // Parse date and time to create appointmentTime
         String dateTimeStr = request.getDate() + "T" + request.getTime();
+        LocalDate appointmentDate = LocalDate.parse(request.getDate(), DATE_FORMATTER);
         LocalDateTime appointmentTime = LocalDateTime.parse(dateTimeStr, DATETIME_FORMATTER);
         
         Appointment appointment = Appointment.builder()
                 .userId(userId)
-                .doctorId(request.getDoctorId())
-                .doctorName(request.getDoctorName())
+                .doctorName(request.getDoctor())
                 .specialty(request.getSpecialty())
+                .appointmentDate(appointmentDate)
                 .appointmentTime(appointmentTime)
                 .appointmentType(request.getAppointmentType() != null ? request.getAppointmentType() : "in-person")
-                .reason(request.getReason())
-                .notes(request.getNotes())
-                .status("SCHEDULED")
                 .build();
         
         appointment = appointmentRepository.save(appointment);
@@ -54,9 +53,9 @@ public class AppointmentService {
                 .collect(Collectors.toList());
     }
     
-    public List<AppointmentResponse> getDoctorAppointments(String doctorId) {
-        log.info("Getting appointments for doctor: {}", doctorId);
-        return appointmentRepository.findByDoctorId(doctorId).stream()
+    public List<AppointmentResponse> getDoctorAppointments(String doctorName) {
+        log.info("Getting appointments for doctor: {}", doctorName);
+        return appointmentRepository.findByDoctorName(doctorName).stream()
                 .map(this::toAppointmentResponse)
                 .collect(Collectors.toList());
     }
@@ -78,19 +77,18 @@ public class AppointmentService {
             throw new RuntimeException("Unauthorized: Cannot update appointment of another user");
         }
         
-        appointment.setDoctorId(request.getDoctorId());
-        appointment.setDoctorName(request.getDoctorName());
+        appointment.setDoctorName(request.getDoctor());
         appointment.setSpecialty(request.getSpecialty());
         
         // Parse date and time
         String dateTimeStr = request.getDate() + "T" + request.getTime();
+        LocalDate appointmentDate = LocalDate.parse(request.getDate(), DATE_FORMATTER);
         LocalDateTime appointmentTime = LocalDateTime.parse(dateTimeStr, DATETIME_FORMATTER);
+        
+        appointment.setAppointmentDate(appointmentDate);
         appointment.setAppointmentTime(appointmentTime);
-        
         appointment.setAppointmentType(request.getAppointmentType() != null ? request.getAppointmentType() : "in-person");
-        appointment.setReason(request.getReason());
-        appointment.setNotes(request.getNotes());
-        
+
         appointment = appointmentRepository.save(appointment);
         return toAppointmentResponse(appointment);
     }
@@ -111,14 +109,12 @@ public class AppointmentService {
     private AppointmentResponse toAppointmentResponse(Appointment appointment) {
         return AppointmentResponse.builder()
                 .id(appointment.getId())
+                .userId(appointment.getUserId())
                 .doctorName(appointment.getDoctorName())
                 .specialty(appointment.getSpecialty())
-                .date(appointment.getAppointmentTime().format(DATE_FORMATTER))
+                .date(appointment.getAppointmentDate().format(DATE_FORMATTER))
                 .time(appointment.getAppointmentTime().format(TIME_FORMATTER))
                 .appointmentType(appointment.getAppointmentType())
-                .reason(appointment.getReason())
-                .notes(appointment.getNotes())
-                .status(appointment.getStatus())
                 .build();
     }
 }

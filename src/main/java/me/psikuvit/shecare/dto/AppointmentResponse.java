@@ -13,6 +13,9 @@ import lombok.NoArgsConstructor;
 public class AppointmentResponse {
     private String id;
     
+    @JsonProperty("user_id")
+    private String userId;
+    
     @JsonProperty("doctor")
     private String doctorName;
     
@@ -24,11 +27,5 @@ public class AppointmentResponse {
     
     @JsonProperty("type")
     private String appointmentType;
-    
-    private String reason;
-    
-    private String notes;
-    
-    private String status;
 }
 
