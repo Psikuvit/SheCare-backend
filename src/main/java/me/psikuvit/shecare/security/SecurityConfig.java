@@ -89,10 +89,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/appointments/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/appointments/**").authenticated()
                         
-                        // Posts endpoints
-                        .requestMatchers(HttpMethod.GET, "/api/v1/posts").authenticated()
+                        // Posts endpoints - GET all and GET single post are public
+                        .requestMatchers(HttpMethod.GET, "/api/v1/posts").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
+                        // Create post requires authentication
                         .requestMatchers(HttpMethod.POST, "/api/v1/posts").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").authenticated()
+                        // Like, comment, share endpoints are public
+                        .requestMatchers(HttpMethod.POST, "/api/v1/posts/*/like").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/posts/*/comment").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/posts/*/share").permitAll()
+                        // Update and delete require authentication
                         .requestMatchers(HttpMethod.PUT, "/api/v1/posts/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/posts/**").authenticated()
                         
