@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.psikuvit.shecare.dto.PostRequest;
 import me.psikuvit.shecare.dto.PostResponse;
+import me.psikuvit.shecare.model.User;
+import me.psikuvit.shecare.repository.UserRepository;
 import me.psikuvit.shecare.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import java.util.List;
 public class PostController {
     
     private final PostService postService;
+    private final UserRepository userRepository;
     
     /**
      * Get all posts
@@ -39,7 +42,8 @@ public class PostController {
     public ResponseEntity<PostResponse> createPost(@Valid @RequestBody PostRequest request) {
         log.info("Create post endpoint called");
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        PostResponse response = postService.createPost(userId, request);
+        User user = userRepository.findById(userId).orElseThrow();
+        PostResponse response = postService.createPost(user, request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
     

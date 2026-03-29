@@ -6,9 +6,11 @@ import me.psikuvit.shecare.dto.PostRequest;
 import me.psikuvit.shecare.dto.PostResponse;
 import me.psikuvit.shecare.exception.ResourceNotFoundException;
 import me.psikuvit.shecare.model.Post;
+import me.psikuvit.shecare.model.User;
 import me.psikuvit.shecare.repository.PostRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,14 +23,21 @@ public class PostService {
     private final PostRepository postRepository;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     
-    public PostResponse createPost(String userId, PostRequest request) {
-        log.info("Creating post for user: {}", userId);
+    public PostResponse createPost(User user, PostRequest request) {
+        log.info("Creating post for user: {}", user.getId());
         
         Post post = Post.builder()
-                .userId(userId)
+                .userId(user.getId())
                 .title(request.getTitle())
+                .authorName(user.getName())
                 .content(request.getContent())
+                .tags(request.getTags())
+                .likes(0)
+                .shares(0)
+                .comments(0)
+                .createdAt(LocalDateTime.now())
                 .build();
+
         
         post = postRepository.save(post);
         return toPostResponse(post);
@@ -67,6 +76,9 @@ public class PostService {
         
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
+        if (request.getTags() != null) {
+            post.setTags(request.getTags());
+        }
         
         post = postRepository.save(post);
         return toPostResponse(post);
@@ -87,12 +99,16 @@ public class PostService {
     
     private PostResponse toPostResponse(Post post) {
         return PostResponse.builder()
-                .id(post.getId())
-                .userId(post.getUserId())
+                .postId(post.getId())
+                .authorId(post.getUserId())
                 .title(post.getTitle())
+                .authorName(post.getAuthorName())
                 .content(post.getContent())
+                .tags(post.getTags())
+                .likes(post.getLikes())
+                .comments(post.getComments())
+                .shares(post.getShares())
                 .createdAt(post.getCreatedAt().format(FORMATTER))
-                .updatedAt(post.getUpdatedAt().format(FORMATTER))
                 .build();
     }
 }
