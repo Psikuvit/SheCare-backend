@@ -82,7 +82,7 @@ public class PostController {
         postService.deletePost(userId, id);
         return ResponseEntity.noContent().build();
     }
-    
+
     /**
      * Increment likes for a post
      * POST /api/v1/posts/{id}/like
