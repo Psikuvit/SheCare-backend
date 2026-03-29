@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
 public class SymptomService {
     
     private final SymptomRepository symptomRepository;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     
     public SymptomResponse createSymptom(String userId, SymptomRequest request) {
         log.info("Creating symptom for user: {}", userId);
@@ -28,7 +29,6 @@ public class SymptomService {
                 .userId(userId)
                 .symptomName(request.getSymptomName())
                 .severity(request.getSeverity())
-                .notes(request.getNotes())
                 .build();
         
         symptom = symptomRepository.save(symptom);
@@ -61,7 +61,6 @@ public class SymptomService {
         
         symptom.setSymptomName(request.getSymptomName());
         symptom.setSeverity(request.getSeverity());
-        symptom.setNotes(request.getNotes());
         
         symptom = symptomRepository.save(symptom);
         return toSymptomResponse(symptom);
@@ -83,12 +82,9 @@ public class SymptomService {
     private SymptomResponse toSymptomResponse(Symptom symptom) {
         return SymptomResponse.builder()
                 .id(symptom.getId())
-                .userId(symptom.getUserId())
                 .symptomName(symptom.getSymptomName())
                 .severity(symptom.getSeverity())
-                .notes(symptom.getNotes())
-                .createdAt(symptom.getCreatedAt().format(FORMATTER))
-                .updatedAt(symptom.getUpdatedAt().format(FORMATTER))
+                .createdAt(symptom.getCreatedAt().format(DATE_FORMATTER))
                 .build();
     }
 }

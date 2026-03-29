@@ -1,5 +1,6 @@
 package me.psikuvit.shecare.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,11 +12,13 @@ import lombok.NoArgsConstructor;
 @Builder
 public class SymptomResponse {
     private String id;
-    private String userId;
+    
+    @JsonProperty("name")
     private String symptomName;
+    
     private Integer severity;
-    private String notes;
+    
+    @JsonProperty("date")
     private String createdAt;
-    private String updatedAt;
 }
 
