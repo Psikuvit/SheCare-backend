@@ -45,7 +45,25 @@ SheCare/
    cd C:\Users\twins\IdeaProjects\SheCare
    ```
 
-2. **Install Dependencies**
+2. **Set Environment Variables** (Optional - uses defaults if not set)
+   ```bash
+   # JWT Configuration
+   set JWT_SECRET=your-very-secret-key-min-32-chars-recommended
+   set JWT_ACCESS_EXPIRY=900000          # 15 minutes in milliseconds
+   set JWT_REFRESH_EXPIRY=604800000      # 7 days in milliseconds
+   
+   # Database
+   set DB_URL=jdbc:mysql://localhost:3306/shecare
+   set DB_USERNAME=root
+   set DB_PASSWORD=your_password
+   set DB_DRIVER=com.mysql.cj.jdbc.Driver
+   set HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
+   
+   # CORS
+   set CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+   ```
+
+3. **Install Dependencies**
    ```bash
    mvn clean install
    ```
@@ -210,20 +228,19 @@ Example valid: `SecurePass123!`
 
 ## 🔧 Environment Configuration
 
-### Development (Default - H2)
-Uses in-memory H2 database. Set in `application.yml`:
+### Development (Default - MySQL)
+Uses MySQL database. Set in `application.properties`:
 
-```yaml
-spring:
-  datasource:
-    url: jdbc:h2:mem:shcaredb
-    driver-class-name: org.h2.Driver
-  h2:
-    console:
-      enabled: true
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/shecare?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+spring.datasource.username=root
+spring.datasource.password=password
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 ```
 
-### Production (PostgreSQL)
+**See [MYSQL_SETUP.md](MYSQL_SETUP.md) for MySQL installation and configuration guide.**
+
+### Production (PostgreSQL or MySQL)
 Create `.env` or set environment variables:
 
 ```bash
