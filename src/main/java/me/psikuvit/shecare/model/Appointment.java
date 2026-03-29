@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,35 +24,19 @@ public class Appointment {
     private String userId;
     
     @Column(nullable = false)
-    private String doctorId;
-    
-    @Column(nullable = false)
     private String doctorName;
     
     @Column(nullable = false)
     private String specialty;
     
     @Column(nullable = false)
+    private LocalDate appointmentDate;
+
+    @Column(nullable = false)
     private LocalDateTime appointmentTime;
     
     @Column(nullable = false)
     @Builder.Default
     private String appointmentType = "in-person"; // in-person, teleconsultation
-    
-    private String reason;
-    
-    private String notes;
-    
-    @Column(nullable = false)
-    @Builder.Default
-    private String status = "SCHEDULED"; // SCHEDULED, COMPLETED, CANCELLED
-    
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-    
-    @UpdateTimestamp
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
 }
 
